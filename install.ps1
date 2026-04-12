@@ -12,6 +12,7 @@ try {
     Write-Host ""
     Write-Host "Please install Python 3.8+ from: https://www.python.org" -ForegroundColor Yellow
     Write-Host "Enable 'Add Python to PATH' during installation" -ForegroundColor Yellow
+    pause
     exit 1
 }
 
@@ -28,7 +29,9 @@ try {
     Invoke-WebRequest -Uri $url -OutFile $zipFile -ErrorAction Stop
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Downloaded successfully" -ForegroundColor Green
 } catch {
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: Failed to download" -ForegroundColor Red
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: Failed to download from $url" -ForegroundColor Red
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Details: $($_.Exception.Message)" -ForegroundColor Yellow
+    pause
     exit 1
 }
 
@@ -52,10 +55,12 @@ try {
     } else {
         Write-Host ""
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installation failed" -ForegroundColor Red
+        pause
         exit $LASTEXITCODE
     }
 } catch {
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: $_" -ForegroundColor Red
+    pause
     exit 1
 } finally {
     Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
