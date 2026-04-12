@@ -24,7 +24,7 @@ $zipFile = Join-Path $tempDir "preipackscript.zip"
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
 try {
-    $url = "https://raw.githubusecontent.com/kvxnomxyz/pks-rd/packages/preipackscript_latest.zip"
+    $url = "https://raw.githubusercontent.com/kvxnomxyz/pks-rd/packages/preipackscript_latest.zip.acpg"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Invoke-WebRequest -Uri $url -OutFile $zipFile -ErrorAction Stop
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Downloaded successfully" -ForegroundColor Green
