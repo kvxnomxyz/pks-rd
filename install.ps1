@@ -39,24 +39,43 @@ Write-Host ""
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Extracting and running installer..." -ForegroundColor Cyan
 
 try {
-    $extractPath = Join-Path $tempDir "psk2"
-    Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force -ErrorAction Stop
+    $extractPath = $tempDir
     
-    $installerScript = Join-Path $extractPath "psk2" "installer" "aio_installer.py"
-    if (-not (Test-Path $installerScript)) {
-        $installerScript = Join-Path $extractPath "installer" "aio_installer.py"
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Extracting ZIP file..." -ForegroundColor Cyan
+    try {
+        Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force -ErrorAction Stop
+    } catch {
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: Failed to extract ZIP: $($_.Exception.Message)" -ForegroundColor Red
+        pause
+        exit 1
     }
     
-    & python $installerScript --cli
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Extraction complete" -ForegroundColor Green
+    
+    # Find the installer
+    $found = @(Get-ChildItem -Path $extractPath -Recurse -Filter "aio_installer.py" -ErrorAction SilentlyContinue)
+    
+    if ($found.Count -eq 0) {
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: aio_installer.py not found" -ForegroundColor Red
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Directory contents:" -ForegroundColor Yellow
+        Get-ChildItem -Path $extractPath -Force | ForEach-Object { Write-Host "    $($_.Name)" }
+        pause
+        exit 1
+    }
+    
+    $installerScript = $found[0].FullName
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Found installer at: $installerScript" -ForegroundColor Green
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Running installer..." -ForegroundColor Cyan
+    
+    & cmd /c "python.exe `"$installerScript`" --cli"
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installation complete!" -ForegroundColor Green
     } else {
         Write-Host ""
-        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installation failed" -ForegroundColor Red
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installation failed with code: $LASTEXITCODE" -ForegroundColor Red
         pause
-        exit $LASTEXITCODE
     }
 } catch {
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] ERROR: $_" -ForegroundColor Red
