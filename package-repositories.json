@@ -1,5 +1,5 @@
 {
   "repos": [
-    "https://github.com/kvxnomxyz/pks-rd/packages"
+    "https://api.github.com/repos/kvxnomxyz/pks-rd/contents/packages"
   ]
 }
